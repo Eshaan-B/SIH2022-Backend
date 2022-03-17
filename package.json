@@ -1,0 +1,32 @@
+{
+  "name": "sih22-backend",
+  "version": "1.0.0",
+  "description": "- Add the following code snippet with proper values in `./config/default.json` for connecting to firestore:\r   ```json\r   {\r     \"apiKey\": \"\",\r     \"authDomain\": \"\",\r     \"projectId\": \"\",\r     \"storageBucket\": \"\",\r     \"messagingSenderId\": \"\",\r     \"appId\": \"\"\r   }\r   ```\r - `npm install` to install all dependencies.\r - `npm start` to start the server, OR\r - `npm run server` to start server using `nodemon`.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server",
+    "server": "nodemon server"
+  },
+  "author": "Eshaan Bhardwaj",
+  "license": "MIT",
+  "dependencies": {
+    "config": "^3.3.7",
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "express-validator": "^6.14.0",
+    "firebase": "^9.6.8",
+    "morgan": "^1.10.0",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eshaan-B/SIH2022-Backend.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Eshaan-B/SIH2022-Backend/issues"
+  },
+  "homepage": "https://github.com/Eshaan-B/SIH2022-Backend#readme"
+}
