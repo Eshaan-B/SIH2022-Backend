@@ -1,4 +1,4 @@
-# SIH22-Backend
+# SIH2022-Backend
 
 ## Setup
 
