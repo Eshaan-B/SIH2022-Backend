@@ -23,7 +23,21 @@ const tracker_details = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
+// /api/trackers/getTrackers
+//GETTING APPLICATIONS OF A SPECIFIC USER
+const tracker_indexUserTrackers = async (req, res, next) => {
+  try {
+    const { userId } = req.body;
+    const colRef = collection(db, `users/${userId}/applications`);
+    const applicationSnapshot = await getDocs(colRef);
+    const applicationList = applicationSnapshot.docs.map((doc) => doc.data());
+    console.log(applicationList);
+    console.log(`Fetched all application of ${userId}`);
+    res.send(applicationList);
+  } catch (err) {
+    console.error(err.message);
+  }
+};
 // /api/trackers/index
 //TODO: Update this
 const tracker_indexAll = async (req, res) => {
@@ -37,7 +51,6 @@ const tracker_indexAll = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
-
 
 // /api/trackers/update
 const tracker_update = async (req, res) => {
