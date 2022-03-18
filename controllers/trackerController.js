@@ -96,34 +96,28 @@ const tracker_update = async (req, res) => {
 // /api/trackers/new
 const tracker_new = async (req, res) => {
   try {
-    const { name, phone, userId } = req.body;
+    
     const trackerRef = collection(db, `users/${userId}/applications`);
-    const docRef = await addDoc(trackerRef, {
-      name: name,
-      phone: phone,
-      status: "new",
-      createdAt: serverTimestamp(),
-    });
-    console.log(`Pushed to user ${userId}`);
-    console.log(docRef.id);
+    const docRef = await addDoc(trackerRef, req.body);
+    console.log(`Pushed ${docRef.id}`);
     //updating applicationID
-    // await updateDoc(doc(db, `users/${userId}/applications/${docRef.id}`), {
-    //   applicationId: docRef.id,
-    // });
+    await updateDoc(doc(db, `users/${userId}/applications/${docRef.id}`), {
+      applicationId: docRef.id,
+    });
     console.log("Updated application ID");
 
     // updating to QLDB
     //TODO: MAKE QLDB schema and upload req.body to it
-    await driver.executeLambda(async (txn)=>{
-      const data = {
-        applicationId:"005",
-        description:"Testing1",
-        status:"InProgress"
-      }
-      await txn.execute("INSERT INTO applications ?",data);
-      console.log("QLDB updated");
-      res.send("Successful")
-    })
+    // await driver.executeLambda(async (txn)=>{
+    //   const data = {
+    //     applicationId:"005",
+    //     description:"Testing1",
+    //     status:"InProgress"
+    //   }
+    //   await txn.execute("INSERT INTO applications ?",data);
+    //   console.log("QLDB updated");
+    //   res.send("Successful")
+    // })
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
