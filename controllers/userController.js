@@ -18,18 +18,21 @@ const {
   doc,
   updateDoc,
   deleteDoc,
+  setDoc,
 } = require("firebase/firestore");
 
 const user_login = async (req, res) => {
   try {
-    const { loginEmail, loginPass } = req.body;
+    const userData = req.body;
+    console.log(userData.loginEmail, userData.loginPass);
     const userCredentials = await signInWithEmailAndPassword(
       auth,
-      loginEmail,
-      loginPass
+      userData.loginEmail,
+      userData.loginPass
     );
-    console.log(userCredentials.user);
-    res.send("User logged in.");
+    const uid = userCredentials.user.uid;
+    console.log(uid);
+    res.send(uid);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -39,25 +42,23 @@ const user_login = async (req, res) => {
 // /api/users/signup
 const user_register = async (req, res) => {
   try {
-    const { loginEmail, loginPass } = req.body;
+    const userData = req.body;
     const userCredentials = await createUserWithEmailAndPassword(
       auth,
-      loginEmail,
-      loginPass
+      userData.loginEmail,
+      userData.loginPass
     );
-    //console.log(userCredentials.user);
+
     //adding user to firestore
-    const usersRef = collection(db,"users");
-    const docRef = await addDoc(usersRef, {
-      email:loginEmail,
-      
-    });
-    console.log(docRef.id);
+    const uid = userCredentials.user.uid;
+    const usersRef = doc(db, `users/${uid}`);
+    await setDoc(usersRef, userData);
+    console.log(uid);
     //updatingID
-    await updateDoc(doc(db,`users/${docRef.id}`),{
-      userId : docRef.id,
-    })    
-    res.send("New user registered.");
+    await updateDoc(doc(db, `users/${uid}`), {
+      userId: uid,
+    });
+    res.send(uid);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -85,12 +86,17 @@ const monitor_AuthState = async (req, res, next) => {
     res.end();
   });
 };
-
-const phoneSignIn = async (req, res, next) => {
+// /api/users/getAllUsers
+const getAllUsers = async (req, res, next) => {
   try {
+    const colref = collection(db,"users");
+    const userSnapshot = await getDocs(colref);
+    const userList = userSnapshot.docs.map((doc) => doc.data());
+    console.log(userList);
+   // res.send(userList);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Server error");
+    console.log(err.message);
+    res.status(500).send("Server error")
   }
 };
 
@@ -99,5 +105,5 @@ module.exports = {
   user_login,
   logout,
   monitor_AuthState,
-  phoneSignIn,
+  getAllUsers,
 };
