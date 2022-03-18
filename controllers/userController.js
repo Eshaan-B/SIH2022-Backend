@@ -18,6 +18,7 @@ const {
   doc,
   updateDoc,
   deleteDoc,
+  setDoc,
 } = require("firebase/firestore");
 
 const user_login = async (req, res) => {
@@ -28,8 +29,9 @@ const user_login = async (req, res) => {
       loginEmail,
       loginPass
     );
-    console.log(userCredentials.user);
-    res.send("User logged in.");
+    const uid = userCredentials.user.uid;
+    console.log(uid);
+    res.send(uid);
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -47,16 +49,12 @@ const user_register = async (req, res) => {
     );
     //console.log(userCredentials.user);
     //adding user to firestore
-    const usersRef = collection(db,"users");
-    const docRef = await addDoc(usersRef, {
-      email:loginEmail,
-      
-    });
-    console.log(docRef.id);
+    const uid = userCredentials.user.uid;
+    const docRef = await setDoc(doc(db, "users", uid), req.body);
     //updatingID
-    await updateDoc(doc(db,`users/${docRef.id}`),{
-      userId : docRef.id,
-    })    
+    await updateDoc(doc(db, `users/${uid}`), {
+      uid: uid,
+    });
     res.send("New user registered.");
   } catch (err) {
     console.error(err.message);
@@ -86,9 +84,14 @@ const monitor_AuthState = async (req, res, next) => {
   });
 };
 
-const phoneSignIn = async (req, res, next) => {
-  try {
-  } catch (err) {
+const getAllUsers = async (req,res,next) => {
+  try{
+    const colRef = collection(db,"users");
+    const userSnapshot = await getDocs(colRef);
+    const userList = userSnapshot.docs.map((doc)=>doc.data());
+    console.log(userList);
+    res.send(userList);
+  }catch(err){
     console.error(err.message);
     res.status(500).send("Server error");
   }
@@ -99,5 +102,4 @@ module.exports = {
   user_login,
   logout,
   monitor_AuthState,
-  phoneSignIn,
 };

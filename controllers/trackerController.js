@@ -92,7 +92,7 @@ const tracker_delete = async (req, res) => {
 
 module.exports = {
   tracker_indexAll,
-  tracker_indexUserTrackers,
+  //tracker_indexUserTrackers,
   tracker_details,
   tracker_update,
   tracker_new,
