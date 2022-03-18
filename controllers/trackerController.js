@@ -1,4 +1,5 @@
 const { db } = require("../config/db");
+//const qldbController = require("../qldbTest");
 const {
   getDocs,
   getDoc,
@@ -10,11 +11,13 @@ const {
   deleteDoc,
 } = require("firebase/firestore");
 
+
+// /api/trackers/fetchDetails
 //TODO: Update this
 const tracker_details = async (req, res) => {
   try {
-    const { id } = req.params;
-    const docRef = doc(db, `trackers/${id}`);
+    const { userId, applicationId } = req.params;
+    const docRef = doc(db, `users/${userId}/applications/${applicationId}`);
     const trackerSnapshot = await getDoc(docRef);
     const tracker = trackerSnapshot.data();
     res.send(tracker);
@@ -82,6 +85,9 @@ const tracker_new = async (req, res) => {
       applicationId: docRef.id,
     });
     console.log("Updated application ID");
+    // updating to QLDB
+    //await qldbController.insert(req.body);
+    //console.log("Updated to QLDB");
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -94,6 +100,8 @@ const tracker_delete = async (req, res) => {
   try {
     const { userId, applicationId } = req.params;
     const docRef = doc(db, `users/${userId}/applications/${applicationId}`);
+    //const docSnapshot = await getDoc(docRef);
+    //console.log(docSnapshot.data);
     await deleteDoc(docRef);
     console.log("deleted");
     res.send("Tracker deleted");
