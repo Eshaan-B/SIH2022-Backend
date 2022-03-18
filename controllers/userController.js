@@ -48,7 +48,7 @@ const user_register = async (req, res) => {
       userData.loginEmail,
       userData.loginPass
     );
-
+ 
     //adding user to firestore
     const uid = userCredentials.user.uid;
     const usersRef = doc(db, `users/${uid}`);

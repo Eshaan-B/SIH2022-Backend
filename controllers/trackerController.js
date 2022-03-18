@@ -1,5 +1,27 @@
 const { db } = require("../config/db");
 //const qldbController = require("../qldbTest");
+var AWS = require('aws-sdk');
+AWS.config.update({region:'us-east-1'});
+const qldb = require('amazon-qldb-driver-nodejs');
+const { log } = require('console');
+const https = require('https');
+// ----------------------------------------------------------
+//Replace this value as appropriate for your application
+const maxConcurrentTransactions = 50;
+
+const agentForQldb = new https.Agent({
+    "keepAlive": true,
+    //Set this to the same value as `maxConcurrentTransactions`(previously called `poolLimit`)
+    //Do not rely on the default value of `Infinity`
+    "maxSockets": maxConcurrentTransactions
+});
+const serviceConfiguration = { "httpOptions": {
+  "agent": agentForQldb
+}};
+
+let driver = new qldb.QldbDriver("sample", serviceConfiguration, maxConcurrentTransactions);
+
+//----------------------------------------------------------
 const {
   getDocs,
   getDoc,
@@ -61,7 +83,11 @@ const tracker_update = async (req, res) => {
     const { userId, applicationId, trackerStatus } = req.body;
     const docRef = doc(db, `users/${userId}/applications/${applicationId}`);
     await updateDoc(docRef, { status: trackerStatus });
-    res.send("Tracker updated");
+    console.log("Tracker updated");
+    //updating in qldb
+    // await driver.executeLambda(async(txn)=>{
+    //   await txn.execute("UPDATE ApplicationTracker SET status = ? where appId = ?","","")
+    // })
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -81,13 +107,23 @@ const tracker_new = async (req, res) => {
     console.log(`Pushed to user ${userId}`);
     console.log(docRef.id);
     //updating applicationID
-    await updateDoc(doc(db, `users/${userId}/applications/${docRef.id}`), {
-      applicationId: docRef.id,
-    });
+    // await updateDoc(doc(db, `users/${userId}/applications/${docRef.id}`), {
+    //   applicationId: docRef.id,
+    // });
     console.log("Updated application ID");
+
     // updating to QLDB
-    //await qldbController.insert(req.body);
-    //console.log("Updated to QLDB");
+    //TODO: MAKE QLDB schema and upload req.body to it
+    await driver.executeLambda(async (txn)=>{
+      const data = {
+        applicationId:"005",
+        description:"Testing1",
+        status:"InProgress"
+      }
+      await txn.execute("INSERT INTO applications ?",data);
+      console.log("QLDB updated");
+      res.send("Successful")
+    })
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
