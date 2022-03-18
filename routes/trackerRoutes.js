@@ -11,4 +11,4 @@ router.get("/:id", trackerController.tracker_details);
 router.put("/update", trackerController.tracker_update);
 router.post("/new", trackerController.tracker_new);
 router.delete("/delete", trackerController.tracker_delete);
-module.exports = router;
+module.exports = router; 

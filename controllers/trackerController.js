@@ -83,7 +83,11 @@ const tracker_update = async (req, res) => {
     const { userId, applicationId, trackerStatus } = req.body;
     const docRef = doc(db, `users/${userId}/applications/${applicationId}`);
     await updateDoc(docRef, { status: trackerStatus });
-    res.send("Tracker updated");
+    console.log("Tracker updated");
+    //updating in qldb
+    // await driver.executeLambda(async(txn)=>{
+    //   await txn.execute("UPDATE ApplicationTracker SET status = ? where appId = ?","","")
+    // })
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Server Error");
@@ -103,12 +107,13 @@ const tracker_new = async (req, res) => {
     console.log(`Pushed to user ${userId}`);
     console.log(docRef.id);
     //updating applicationID
-    await updateDoc(doc(db, `users/${userId}/applications/${docRef.id}`), {
-      applicationId: docRef.id,
-    });
+    // await updateDoc(doc(db, `users/${userId}/applications/${docRef.id}`), {
+    //   applicationId: docRef.id,
+    // });
     console.log("Updated application ID");
 
     // updating to QLDB
+    //TODO: MAKE QLDB schema and upload req.body to it
     await driver.executeLambda(async (txn)=>{
       const data = {
         applicationId:"005",
